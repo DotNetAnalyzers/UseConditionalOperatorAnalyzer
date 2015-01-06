@@ -54,6 +54,35 @@ namespace UseConditionalOperatorAnalyzer
                     .WithTrailingTrivia(sourceNode.GetTrailingTrivia());
         }
 
+        private static ExpressionSyntax ExtractSimpleAssignmentRight(AssignmentExpressionSyntax assignment)
+        {
+            switch (assignment.CSharpKind())
+            {
+                case SyntaxKind.AddAssignmentExpression:
+                    return SyntaxFactory.BinaryExpression(SyntaxKind.AddExpression, assignment.Left, assignment.Right);
+                case SyntaxKind.SubtractAssignmentExpression:
+                    return SyntaxFactory.BinaryExpression(SyntaxKind.SubtractExpression, assignment.Left, assignment.Right);
+                case SyntaxKind.MultiplyAssignmentExpression:
+                    return SyntaxFactory.BinaryExpression(SyntaxKind.MultiplyExpression, assignment.Left, assignment.Right);
+                case SyntaxKind.DivideAssignmentExpression:
+                    return SyntaxFactory.BinaryExpression(SyntaxKind.DivideExpression, assignment.Left, assignment.Right);
+                case SyntaxKind.ModuloAssignmentExpression:
+                    return SyntaxFactory.BinaryExpression(SyntaxKind.ModuloExpression, assignment.Left, assignment.Right);
+                case SyntaxKind.AndAssignmentExpression:
+                    return SyntaxFactory.BinaryExpression(SyntaxKind.AndAssignmentExpression, assignment.Left, assignment.Right);
+                case SyntaxKind.OrAssignmentExpression:
+                    return SyntaxFactory.BinaryExpression(SyntaxKind.OrAssignmentExpression, assignment.Left, assignment.Right);
+                case SyntaxKind.ExclusiveOrAssignmentExpression:
+                    return SyntaxFactory.BinaryExpression(SyntaxKind.ExclusiveOrExpression, assignment.Left, assignment.Right);
+                case SyntaxKind.LeftShiftAssignmentExpression:
+                    return SyntaxFactory.BinaryExpression(SyntaxKind.LeftShiftExpression, assignment.Left, assignment.Right);
+                case SyntaxKind.RightShiftAssignmentExpression:
+                    return SyntaxFactory.BinaryExpression(SyntaxKind.RightShiftExpression, assignment.Left, assignment.Right);
+                default:
+                    return assignment.Right;
+            }
+        }
+
         private static LocalDeclarationStatementSyntax CreateVarDeclaration(string symbolName, ExpressionSyntax expression)
         {
             return
@@ -78,8 +107,8 @@ namespace UseConditionalOperatorAnalyzer
                 SyntaxFactory
                     .ConditionalExpression(
                         ApplyFormatting(SyntaxFactory.ParenthesizedExpression(ifStatement.Condition)),
-                        ApplyFormatting(truePartExpr.Right),
-                        ApplyFormatting(falsePartExpr.Right));
+                        ApplyFormatting(ExtractSimpleAssignmentRight(truePartExpr)),
+                        ApplyFormatting(ExtractSimpleAssignmentRight(falsePartExpr)));
 
             var assignmentExpr =
                 SyntaxFactory
